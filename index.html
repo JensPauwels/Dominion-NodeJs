@@ -10,37 +10,50 @@
 
   <body>
 
-    <section>
-      <p>users</p>
-      <div id="users"></div>
+    <section style="border:1px solid black;min-height:100px;" id="messasges">
+
     </section>
 
-
-
-    <form action="#" method="get" id="newUser">
-      <input type="text" id="username" placeholder="enter your username...">
-      <input type="submit" value="verstuur!">
+    <form action="#" method="post" id="sendMessage">
+      <input type="text" id="username" placeholder="username">
+      <input type="text" id="message" placeholder="message">
+      <input type="submit" placeholder="verstuur!">
     </form>
 
-    <button id="randomButton">Press me and check console log</button>
+
+
+
 
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io.connect();
-      socket.on('displayUsers', (data) => {
+      const socket = io.connect();
+
+      const addMesasge = (data) => {
         console.log(data);
+        $('#messasges').append(`${data.username}: ${data.message}`);
+      };
+
+      socket.on('newMessage', (data) => {
+        addMesasge(data);
       });
 
-      const logUsers = (e) => {
+      const addMessage = (e) => {
         e.preventDefault();
-        socket.emit('new-user', $('#username').val());
+        const data = {
+          username: $('#username').val(),
+          message: $('#message').val()
+        }
+
+
+        socket.emit('sendMessage', data);
+        addMesasge(data);
       };
 
       $(() => {
-        $('#newUser').on('submit', logUsers);
+        $('#sendMessage').on('submit', addMessage);
       });
 
     </script>

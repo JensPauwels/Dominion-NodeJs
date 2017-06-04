@@ -3,8 +3,6 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
 
-const users = [];
-const connections = [];
 
 server.listen(process.env.PORT || 80);
 console.log('Server running...');
@@ -13,9 +11,8 @@ app.get('/',(req, res) => {
 });
 
 io.sockets.on('connection', (socket) => {
-  connections.push(socket);
-  socket.on('new-user', (username) => {
-    users.push(username);
-    io.sockets.emit('displayUsers', users);
+  socket.on('sendMessage', (obj) => {
+    console.log(obj);
+    socket.broadcast.emit('newMessage',obj);
   });
 });
