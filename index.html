@@ -33,7 +33,7 @@
 
       const addMesasge = (data) => {
         console.log(data);
-        $('#messasges').append(`${data.username}: ${data.message}`);
+        $('#messasges').append(`${data.username}: ${data.message}<br>`);
       };
 
       socket.on('newMessage', (data) => {
