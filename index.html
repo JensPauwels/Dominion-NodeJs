@@ -5,27 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="./style/screen.css">
     <title>Node Pratice</title>
   </head>
 
   <body>
-    <section>
-      <p>messages</p>
-      <div id="messages"></div>
-    </section>
 
     <section>
       <p>users</p>
       <div id="users"></div>
     </section>
 
-    <form action="#" method="get" id="demo">
-      <input type="text" id="message" placeholder="enter your text...">
-      <input type="submit" value="verstuur!">
-    </form>
 
-    <!-- hier eens iets testen voor users -->
 
     <form action="#" method="get" id="newUser">
       <input type="text" id="username" placeholder="enter your username...">
@@ -38,7 +28,22 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/script.js"></script>
+    <script>
+      var socket = io.connect();
+      socket.on('displayUsers', (data) => {
+        console.log(data);
+      });
+
+      const logUsers = (e) => {
+        e.preventDefault();
+        socket.emit('new-user', $('#username').val());
+      };
+
+      $(() => {
+        $('#newUser').on('submit', logUsers);
+      });
+
+    </script>
 
   </body>
 

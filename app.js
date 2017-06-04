@@ -1,58 +1,21 @@
-"use strict";
-//const connection = require('./init/mysql');
-const app = require('./init/express');
-const server = require('./init/server');
-const session = require('express-session');
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io').listen(server);
 
+const users = [];
+const connections = [];
 
-app.get('/login.html', (req, res) => {
-  res.render('form', {
-    title: 'Login',
-    action: '/doLogin',
-    btnText: 'login'
-  });
+server.listen(process.env.PORT || 80);
+console.log('Server running...');
+app.get('/',(req, res) => {
+  res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/register.html', (req, res) => {
-  res.render('form', {
-    title: 'register',
-    action: '/doRegister',
-    btnText: 'register'
-  });
-});
-
-app.post('/doLogin', (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  connection.getUser(username, password, succes => {
-    if (succes) {
-      req.session.loggedin = username;
-      res.redirect('/index.html');
-    } else {
-      res.render('form', {
-        title: 'Login',
-        action: '/doLogin',
-        btnText: 'login',
-        error: `failed to login with ${username}`
-      });
-    }
-  });
-});
-
-app.post('/doRegister',(req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  connection.addUser(username, password, succes => {
-    if (succes) {
-      req.session.loggedin = username;
-      res.send("Registered in")
-    } else {
-      res.render('form', {
-        title: 'register',
-        action: '/doRegister',
-        btnText: 'register',
-        error: `failed to register with ${username}`
-      });
-    }
+io.sockets.on('connection', (socket) => {
+  connections.push(socket);
+  socket.on('new-user', (username) => {
+    users.push(username);
+    io.sockets.emit('displayUsers', users);
   });
 });
