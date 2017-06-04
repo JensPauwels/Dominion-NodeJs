@@ -5,11 +5,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <link rel="stylesheet" href="./style/screen.css">
+    <title>Node Pratice</title>
   </head>
 
   <body>
-    <p>Testing</p>
+    <section>
+      <p>messages</p>
+      <div id="messages"></div>
+    </section>
+
+    <section>
+      <p>users</p>
+      <div id="users"></div>
+    </section>
+
+    <form action="#" method="get" id="demo">
+      <input type="text" id="message" placeholder="enter your text...">
+      <input type="submit" value="verstuur!">
+    </form>
+
+    <!-- hier eens iets testen voor users -->
+
+    <form action="#" method="get" id="newUser">
+      <input type="text" id="username" placeholder="enter your username...">
+      <input type="submit" value="verstuur!">
+    </form>
+
+    <button id="randomButton">Press me and check console log</button>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/script.js"></script>
+
   </body>
 
 </html>
