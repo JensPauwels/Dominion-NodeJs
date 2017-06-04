@@ -1,5 +1,5 @@
 "use strict";
-const connection = require('./init/mysql');
+//const connection = require('./init/mysql');
 const app = require('./init/express');
 const server = require('./init/server');
 const session = require('express-session');
