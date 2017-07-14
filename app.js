@@ -8,6 +8,9 @@ const users = [];
 
 server.listen(process.env.PORT || 9999);
 console.log('Server running...');
+app.get('/',(req, res) => {
+ +  res.sendFile(__dirname + '/index.html');
+  });
 
 const getUserNames = function () {
   let userNames = [];
