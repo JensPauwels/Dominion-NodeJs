@@ -1,9 +1,9 @@
 const mysql = require('mysql');
 const connection =  mysql.createConnection({
-  host     : 'pauwelsprojects.be',
-  user     : 'pauwelsprojects_be',
-  password : 'wV6op5ix',
-  database : 'pauwelsprojects_be'
+  host     : 'johnny.heliohost.org',
+  user     : 'node_jens',
+  password : 'test123',
+  database : 'node_dominion'
 });
 
 connection.connect();
@@ -11,6 +11,12 @@ connection.connect();
 const querys = {
   getUser : 'SELECT password FROM users WHERE username = ?;'
 };
+
+const test = function () {
+  connection.query('select * from users', (err,res) => {
+    if (!err) console.log(res);
+  });
+}();
 
 const getUser = (username, password,cb) => {
    connection.query(querys.getUser,[username], (err,res) => {
