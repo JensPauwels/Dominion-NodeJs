@@ -5,8 +5,10 @@ const io = require('socket.io').listen(server);
 const mysql = require('./mysql');
 const users = [];
 
+app.use(express.static('public'));
 
-server.listen(process.env.PORT || 9999);
+
+server.listen(process.env.PORT || 80);
 console.log('Server running...');
 
 const getUserNames = function () {
