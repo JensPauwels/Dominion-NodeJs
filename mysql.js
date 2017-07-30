@@ -2,11 +2,9 @@ const mysql = require('mysql');
 const connection =  mysql.createConnection({
   host     : 'johnny.heliohost.org',
   user     : 'node_jens',
-  password : 'test123',
+  password : 'dominion',
   database : 'node_dominion'
 });
-
-connection.connect();
 
 const querys = {
   getUser : 'SELECT password FROM users WHERE username = ?;'
@@ -29,5 +27,6 @@ const getUser = (username, password,cb) => {
 };
 
 module.exports = {
+  connection,
   getUser
 };

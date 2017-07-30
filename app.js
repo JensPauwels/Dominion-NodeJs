@@ -2,11 +2,11 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
-const connection = require('./mysql');
+const mysql = require('./mysql');
 const users = [];
 
 
-server.listen(process.env.PORT || 80);
+server.listen(process.env.PORT || 9999);
 console.log('Server running...');
 
 const getUserNames = function () {
@@ -30,6 +30,7 @@ const logout = function (socket) {
 
 io.sockets.on('connection', (socket) => {
   socket.on('login', (obj) => {
+    mysql.connection.connect();
     connection.getUser(obj.username,obj.password,(loggedIn) => {
       let objToReturn = {};
       if (!loggedIn) objToReturn = {status: loggedIn};
@@ -44,6 +45,7 @@ io.sockets.on('connection', (socket) => {
       }
       socket.emit('loginStatus', objToReturn);
     });
+    mysql.connection.end();
   });
 
   socket.on('logout',() => {
