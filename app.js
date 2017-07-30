@@ -2,24 +2,12 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
-const existingUsers = [
-  {
-    username: "jens",
-    password: "test"
-  },
-  {
-    username: "pol",
-    password: "test"
-  }
-];
+const mysql = require('./mysql');
 const users = [];
 
 
 server.listen(process.env.PORT || 9999);
 console.log('Server running...');
-app.get('/',(req, res) => {
- +  res.sendFile(__dirname + '/index.html');
-  });
 
 const getUserNames = function () {
   let userNames = [];
@@ -42,12 +30,7 @@ const logout = function (socket) {
 
 io.sockets.on('connection', (socket) => {
   socket.on('login', (obj) => {
-    let loggedin = false;
-    existingUsers.forEach(user => {
-      if (user.username === obj.username && user.password === obj.password) loggedin = true;
-    });
-
-    if (loggedin) {
+    mysql.getUser(obj.username,obj.password,(loggedIn) => {
       let objToReturn = {};
       if (!loggedIn) objToReturn = {status: loggedIn};
       else {
@@ -60,7 +43,7 @@ io.sockets.on('connection', (socket) => {
         };
       }
       socket.emit('loginStatus', objToReturn);
-    }
+    });
   });
 
   socket.on('logout',() => {
