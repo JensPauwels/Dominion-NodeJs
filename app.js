@@ -6,7 +6,7 @@ const mysql = require('./mysql');
 const users = [];
 
 
-server.listen(process.env.PORT || 9999);
+server.listen(process.env.PORT || 80);
 console.log('Server running...');
 
 const getUserNames = function () {
