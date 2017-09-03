@@ -6,6 +6,10 @@ const mysql = require('./mysql');
 const users = [];
 const gameInstances = [];
 
+app.use(express.static('public'))
+//app.get('/');
+
+
 const getUserWithoutSocket = function (users) {
   return users.map(user => {
     return {
@@ -66,7 +70,8 @@ const redirectToGameField = function (obj, instance) {
 
 };
 
-server.listen(process.env.PORT || 9999);
+//server.listen(process.env.PORT || 9999);
+server.listen(process.env.PORT || 80);
 console.log('Server running...')
 
 io.sockets.on('connection', (socket) => {
