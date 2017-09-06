@@ -7,32 +7,57 @@ const pool =  mysql.createPool({
   database : 'node_dominion'
 });
 
-pool.getConnection((err, connection) => {
-  if (!err) console.log('connected');
-});
 
 
 const querys = {
-  getUser : 'SELECT password FROM users WHERE username = ?;'
+  getUser : 'SELECT password FROM users WHERE username = ?;',
+  insertUser: 'INSERT into users (username, password, email, uid) values(?,?,?,?);',
+  controlEmail: 'SELECT * FROM users WHERE email = ?;'
+};
+
+const handleDb = function (query) {
+  pool.getConnection((err, connection) => {
+    if (!err) {
+      query(connection);
+      connection.release();
+    }
+    else console.log(err);
+  });
 };
 
 const getUser = (username, password,cb) => {
-  pool.getConnection((err, connection) => {
+  handleDb(connection => {
     connection.query(querys.getUser,[username], (err,res) => {
-      /*if (!err && res.length > 0) {
-        if (res[0].password === password) cb(true);
-        else cb(false);
-      }
-      else cb(false);
-
-      /*vs**/
-
       cb(!err && res.length > 0 && res[0].password === password);
-   });
-   connection.release();
+    });
+  })
+};
+
+const controlEmail = (email, cb) => {
+  handleDb(connection => {
+    connection.query(querys.controlEmail, [email], (err, res) => {
+      console.log();
+      if (!err && res.length > 0 && res[0].email === email) {
+        cb(res[0].password);
+      }
+      else {
+        cb(false);
+      }
+    });
+  });
+};
+
+const register = function (username, password, email, cb) {
+  handleDb(connection => {
+    connection.query(querys.insertUser,[username, password, email, 50], (err, res) => {
+      if (!err) console.log(res);
+      cb(!err)
+    });
   });
 };
 
 module.exports = {
-  getUser
+  getUser,
+  register,
+  controlEmail
 };
