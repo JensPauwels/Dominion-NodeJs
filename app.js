@@ -8,6 +8,7 @@ const saltRounds = 10;
 const mysql = require('./mysql');
 const users = [];
 let gameInstances = [];
+//eerste push
 
 app.use(express.static('public'))
 
