@@ -8,7 +8,8 @@ const saltRounds = 10;
 const mysql = require('./mysql');
 const users = [];
 let gameInstances = [];
-//eerste push
+
+require('./api.json');
 
 app.use(express.static('public'))
 
@@ -142,6 +143,42 @@ const handleRegistration = function (obj, socket) {
 
 };
 
+const startGame = function (socket) {
+  startingDeck();
+  socket.emit('userInfo', usersTemp);
+}
+
+const startingDeck = function () {
+  usersTemp.forEach(user => {
+    user.hand.push({
+          "name" : "Copper",
+          "action" : "Currency",
+          "value" : 1,
+          "amount" : 7
+        },
+        {
+          "name" : "Estate",
+          "action" : "Points",
+          "value" : 1,
+          "amount" : 3
+         })
+     });
+     console.log(usersTemp);
+}
+
+//Temporarily
+const usersTemp  = [{
+    username: "Frank",
+    hand: [],
+    victoryPoints: 3,
+  },
+  {
+    username: "Mathias",
+    hand: [],
+    victoryPoints: 3,
+  }]
+
+
 io.sockets.on('connection', socket => {
 
   socket.on('update', () => {
@@ -184,6 +221,10 @@ io.sockets.on('connection', socket => {
 
   socket.on('invite', uid => {
     invite(uid, socket);
+  });
+
+  socket.on('startGame', () => {
+    startGame(socket);
   });
 
 });

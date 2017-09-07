@@ -1,0 +1,54 @@
+"actionCards" : [
+
+  ],
+  "passiveCards" : [
+    {
+      "name" : "Copper",
+      "action" : "Currency",
+      "value" : 1,
+      "cost" : 0,
+      "amount" : 50
+    },
+    {
+      "name" : "Silver",
+      "action" : "Currency",
+      "value" : 2,
+      "cost" : 3,
+      "amount" : 40
+    },
+    {
+      "name" : "Gold",
+      "action" : "Currency",
+      "value" : 3,
+      "cost" : 6,
+      "amount" : 40
+    },
+    {
+      "name" : "Estate",
+      "action" : "Points",
+      "value" : 1,
+      "cost" : 2,
+      "amount" : 8
+    },
+    {
+      "name" : "Duchies",
+      "action" : "Points",
+      "value" : 3,
+      "cost" : 5,
+      "amount" : 8
+    },
+    {
+      "name" : "Province",
+      "action" : "Points",
+      "value" : 6,
+      "cost" : 8,
+      "amount" : 8
+    },
+    {
+      "name" : "Curse",
+      "action" : "Points",
+      "value" : -1,
+      "cost" : 0,
+      "amount" : 10
+    }
+  ]
