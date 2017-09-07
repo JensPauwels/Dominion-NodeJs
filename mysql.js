@@ -21,7 +21,7 @@ const handleDb = function (query) {
       query(connection);
       connection.release();
     }
-    else console.log(err);
+    else console.error(err);
   });
 };
 
@@ -36,7 +36,6 @@ const getUser = (username, password,cb) => {
 const controlEmail = (email, cb) => {
   handleDb(connection => {
     connection.query(querys.controlEmail, [email], (err, res) => {
-      console.log();
       if (!err && res.length > 0 && res[0].email === email) {
         cb(res[0].password);
       }
