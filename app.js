@@ -7,9 +7,9 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const mysql = require('./mysql');
 const users = [];
+const cardList = require('./api.json');
 let gameInstances = [];
 
-require('./api.json');
 
 app.use(express.static('public'))
 
@@ -145,38 +145,63 @@ const handleRegistration = function (obj, socket) {
 
 const startGame = function (socket) {
   startingDeck();
-  socket.emit('userInfo', usersTemp);
+  fillUpBoard();
+  socket.emit('startGameInfo', usersTemp, cardsLeft);
 }
 
 const startingDeck = function () {
   usersTemp.forEach(user => {
-    user.hand.push({
-          "name" : "Copper",
-          "action" : "Currency",
-          "value" : 1,
-          "amount" : 7
-        },
-        {
-          "name" : "Estate",
-          "action" : "Points",
-          "value" : 1,
-          "amount" : 3
-         })
-     });
-     console.log(usersTemp);
+    user.deck = [];
+    user.deck.push(
+    findCards.findCard(cardList.passiveCards, 'Copper'),
+    findCards.findCard(cardList.passiveCards, 'Estate')
+    );
+
+    let index = findCards.indexOfCardInDeck(user.deck, 'Copper');
+    user.deck[index].amount = 7;
+    user.deck[index + 1].amount = 3;
+  });
+}
+
+const findCards = {
+  findCard: function (array, cardName) {
+    return array.find(card => card.name === cardName)
+  },
+  checkDeck: function (array, cardName) {
+    return array.some(card => card.name === cardName)
+  },
+  indexOfCardInDeck: function (array, cardName) {
+    return array.findIndex(card => card.name === cardName);
+  }
+}
+
+const drawCards = function () {
+  //TODO fix hier het random genereren van card draw.
+}
+
+const fillUpBoard = function () {
+  cardList.passiveCards.forEach(card => {
+    cardsLeft.push(card);
+  })
+  console.log(cardsLeft);
 }
 
 //Temporarily
 const usersTemp  = [{
     username: "Frank",
     hand: [],
+    deck: [],
     victoryPoints: 3,
   },
   {
     username: "Mathias",
     hand: [],
+    deck: [],
     victoryPoints: 3,
-  }]
+  }
+]
+
+const cardsLeft = [];
 
 
 io.sockets.on('connection', socket => {
@@ -227,4 +252,13 @@ io.sockets.on('connection', socket => {
     startGame(socket);
   });
 
+  socket.on('endTurn', () => {
+    switchUserTurn(socket);
+  })
+
 });
+
+const switchUserTurn = function (socket) {
+  //TODO stuur gegevens van alle zetten die gedaan werden door naar alle sockets.
+  console.log('switchUser');
+}
