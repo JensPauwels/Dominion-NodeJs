@@ -141,25 +141,28 @@ const disconnect = function (socket) {
   });
 };
 
-const controlOnDisconnect = function () {
-  setInterval(function () {
-    const sockets = Object.keys(io.sockets.sockets);
-    const date = new Date();
 
-    tokens.forEach(token => {
-      if (sockets.includes(token.socket.id)) token.timeStamp = date.getTime();
-      else {
-        if (token.timeStamp !== undefined && (token.timeStamp + 60000) < date.getTime()) logOut(token.uid);
+const controlOnDisconnect = function (socket) {
+  const sockets = Object.keys(io.sockets.sockets);
+  const date = new Date();
+
+  tokens.forEach(token => {
+    if (sockets.includes(token.socket.id)) token.timeStamp = date.getTime();
+    else {
+      if (token.timeStamp !== undefined && (token.timeStamp + 60000) < date.getTime()) {
+        logOut(token.uid);
+        updateUserList(socket);
       }
-    });
-  }, 5000);
-}();
-
-
-
+    }
+  });
+};
 
 
 io.sockets.on('connection', socket => {
+
+  setInterval(() =>  {
+    controlOnDisconnect(socket);
+  }, 5000);
 
   socket.on('register', (obj) => {
     handleRegistration(obj, socket);
@@ -170,7 +173,7 @@ io.sockets.on('connection', socket => {
   });
 
   socket.on('logout', (token) => {
-    logOut(token);
+    logOut(token.uid);
     updateUserList(socket);
   });
 
