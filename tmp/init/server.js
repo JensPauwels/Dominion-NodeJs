@@ -35,7 +35,8 @@ io.sockets.on('connection', (socket) => {
     connections.forEach(connection => {
       if (connection.socket === socket) user = connection.username;
     });
-    socket.broadcast.emit('updateClients', {msg, user});
+    if (!msg.contains('<script>') socket.broadcast.emit('updateClients', {msg, user});
+
   });
 
   socket.on('disconnect', () => {
