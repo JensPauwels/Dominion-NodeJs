@@ -47,10 +47,13 @@ io.sockets.on('connection', (socket) => {
   socket.on('disconnect', () => {
     let tmp;
     connections.forEach((connection, index) => {
-      if (connection.socket === socket) tmp = index;
+      if (connection.socket === socket) {
+        tmp = index;
+        console.log(connection.username);
+      }
     });
 
-    console.log(connection.username);
+
 
     connections.splice(tmp, 1);
     connections.forEach(connection => {
