@@ -22,11 +22,10 @@ io.sockets.on('connection', (socket) => {
     connections.forEach(connection => {
        if (connection.username === username) tmp = true;
     });
-
-    console.log(username);
+    
     const newUsername = username.trim(' ');
     if (!tmp && username.trim(' ').length !== 0) {
-      connections.push({xss(username), socket});
+      connections.push({username: xss(username), socket});
       socket.emit('connectionAccepted', "test");
       updateUserList(socket);
     }
@@ -41,7 +40,7 @@ io.sockets.on('connection', (socket) => {
     connections.forEach(connection => {
       if (connection.socket === socket) user = connection.username;
     });
-    if (!msg.includes('<script>')) socket.broadcast.emit('updateClients', {msg: xss(msg), user});
+    socket.broadcast.emit('updateClients', {msg: xss(msg), user});
 
   });
 
