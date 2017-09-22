@@ -3,7 +3,7 @@ const server = require('http').createServer(express);
 const io = require('socket.io').listen(server);
 let connections = [];
 
-server.listen(process.env.PORT || 9999, () => {
+server.listen(process.env.PORT || 80, () => {
   console.log('server listening on 9999');
 });
 
