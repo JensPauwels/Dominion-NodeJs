@@ -10,6 +10,7 @@ server.listen(process.env.PORT || 80, () => {
 
 const updateUserList = function (socket) {
   const users = connections.map(user => user.username);
+  console.log(users);
   socket.emit('updateUserList', users);
   socket.broadcast.emit('updateUserList', users);
 };
@@ -25,7 +26,7 @@ io.sockets.on('connection', (socket) => {
     console.log(username);
     const newUsername = username.trim(' ');
     if (!tmp && username.trim(' ').length !== 0) {
-      connections.push({username, socket});
+      connections.push({xss(username), socket});
       socket.emit('connectionAccepted', "test");
       updateUserList(socket);
     }
