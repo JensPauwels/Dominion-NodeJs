@@ -22,10 +22,10 @@ io.sockets.on('connection', (socket) => {
     connections.forEach(connection => {
        if (connection.username === username) tmp = true;
     });
-    
+
     const newUsername = username.trim(' ');
     if (!tmp && username.trim(' ').length !== 0) {
-      connections.push({username: xss(username), socket});
+      connections.push({username: xss(username), socket, time: new Date().getTime()});
       socket.emit('connectionAccepted', "test");
       updateUserList(socket);
     }
@@ -40,7 +40,10 @@ io.sockets.on('connection', (socket) => {
     connections.forEach(connection => {
       if (connection.socket === socket) user = connection.username;
     });
-    socket.broadcast.emit('updateClients', {msg: xss(msg), user});
+
+    if (user.time < 5000 + new Date().getTime()) {
+      socket.broadcast.emit('updateClients', {msg: xss(msg), user});
+    }
 
   });
 
