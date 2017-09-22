@@ -10,14 +10,16 @@ server.listen(process.env.PORT || 80, () => {
 
 const updateUserList = function (socket) {
   const users = connections.map(user => user.username);
-  console.log(users);
-  socket.emit('updateUserList', xss(users));
+  socket.emit('updateUserList', users);
   socket.broadcast.emit('updateUserList', xss(users));
 };
 
 io.sockets.on('connection', (socket) => {
 
+
+
   socket.on('enterLobby', (username) => {
+
     let tmp = false;
     connections.forEach(connection => {
        if (connection.username === username) tmp = true;
@@ -25,7 +27,7 @@ io.sockets.on('connection', (socket) => {
 
     const newUsername = username.trim(' ');
     if (!tmp && username.trim(' ').length !== 0) {
-      connections.push({username: xss(username), socket, time: new Date().getTime()});
+      connections.push({username: xss(username), socket});
       socket.emit('connectionAccepted', "test");
       updateUserList(socket);
     }
