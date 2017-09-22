@@ -49,7 +49,6 @@ io.sockets.on('connection', (socket) => {
     connections.forEach((connection, index) => {
       if (connection.socket === socket) {
         tmp = index;
-        console.log(connection.username);
       }
     });
 
