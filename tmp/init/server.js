@@ -12,6 +12,7 @@ const updateUserList = function (socket) {
   const users = connections.map(user => user.username);
   socket.emit('updateUserList', users);
   socket.broadcast.emit('updateUserList', users);
+  console.log(users);
 };
 
 io.sockets.on('connection', (socket) => {
