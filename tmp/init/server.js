@@ -21,7 +21,7 @@ io.sockets.on('connection', (socket) => {
        if (connection.username === username) tmp = true;
     });
 
-    if (!tmp && username !== '') {
+    if (!tmp && !username.trim(' ')) {
       connections.push({username, socket});
       socket.emit('connectionAccepted', "test");
       updateUserList(socket);
