@@ -21,13 +21,16 @@ io.sockets.on('connection', (socket) => {
        if (connection.username === username) tmp = true;
     });
 
-    if (!tmp && !username.trim(' ')) {
+    console.log(username);
+    const newUsername = username.trim(' ');
+    if (!tmp && username.trim(' ').length !== 0) {
       connections.push({username, socket});
       socket.emit('connectionAccepted', "test");
       updateUserList(socket);
     }
-    else if (!username.trim(' ')) socket.emit('connectionDeclined', {errorMsg: "username can't be empty"})
     else if (tmp) socket.emit('connectionDeclined', {errorMsg: 'username already exists'});
+    else if (newUsername === '') socket.emit('connectionDeclined', {errorMsg: "username can't be empty"})
+
   });
 
   socket.on('newMessage', (msg) => {
