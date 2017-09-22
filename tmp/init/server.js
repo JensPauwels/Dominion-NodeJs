@@ -26,7 +26,7 @@ io.sockets.on('connection', (socket) => {
       socket.emit('connectionAccepted', "test");
       updateUserList(socket);
     }
-    else if (username === '') socket.emit('connectionDeclined', {errorMsg: "username can't be empty"})
+    else if (!username.trim(' ')) socket.emit('connectionDeclined', {errorMsg: "username can't be empty"})
     else if (tmp) socket.emit('connectionDeclined', {errorMsg: 'username already exists'});
   });
 
