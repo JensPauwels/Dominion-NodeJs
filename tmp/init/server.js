@@ -11,7 +11,7 @@ server.listen(process.env.PORT || 80, () => {
 const updateUserList = function (socket) {
   const users = connections.map(user => user.username);
   socket.emit('updateUserList', users);
-  socket.broadcast.emit('updateUserList', xss(users));
+  socket.broadcast.emit('updateUserList', users);
 };
 
 io.sockets.on('connection', (socket) => {
