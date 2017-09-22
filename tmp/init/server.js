@@ -1,4 +1,5 @@
 const express = require('./express');
+const xss = require('xss');
 const server = require('http').createServer(express);
 const io = require('socket.io').listen(server);
 let connections = [];
@@ -28,6 +29,7 @@ io.sockets.on('connection', (socket) => {
       socket.emit('connectionAccepted', "test");
       updateUserList(socket);
     }
+
     else if (tmp) socket.emit('connectionDeclined', {errorMsg: 'username already exists'});
     else if (newUsername === '') socket.emit('connectionDeclined', {errorMsg: "username can't be empty"})
 
@@ -38,7 +40,7 @@ io.sockets.on('connection', (socket) => {
     connections.forEach(connection => {
       if (connection.socket === socket) user = connection.username;
     });
-    if (!msg.includes('<script>')) socket.broadcast.emit('updateClients', {msg, user});
+    if (!msg.includes('<script>')) socket.broadcast.emit('updateClients', {msg: xss(msg), user});
 
   });
 
@@ -47,6 +49,8 @@ io.sockets.on('connection', (socket) => {
     connections.forEach((connection, index) => {
       if (connection.socket === socket) tmp = index;
     });
+
+    console.log(connection.username);
 
     connections.splice(tmp, 1);
     connections.forEach(connection => {
