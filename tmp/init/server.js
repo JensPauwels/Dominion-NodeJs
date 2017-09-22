@@ -41,10 +41,7 @@ io.sockets.on('connection', (socket) => {
       if (connection.socket === socket) user = connection.username;
     });
 
-    if (user.time < 5000 + new Date().getTime()) {
-      socket.broadcast.emit('updateClients', {msg: xss(msg), user});
-      user.time = new Date().getTime();
-    }
+    socket.broadcast.emit('updateClients', {msg: xss(msg), user});
 
   });
 
