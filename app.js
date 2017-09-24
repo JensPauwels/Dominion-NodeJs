@@ -19,8 +19,8 @@ const startServer = function () {
 const getUserWithoutSocket = function (users) {
   return users.map(user => {
     return {
-      username: user.username,
-      UID: user.UID
+      username: user.email,
+      uid: user.uid
     }
   });
 };
@@ -36,10 +36,7 @@ const getUserNames = function () {
 };
 
 const logOut = function (token) {
-  let idx;
-  tokens.forEach((x, index) => {
-    if (x.uid === token) idx = index;
-  });
+  const idx = tokens.indexOf(tokens.find(x => x.uid === token));
   tokens.splice(idx, 1);
 };
 
@@ -48,7 +45,7 @@ const updateUserList = function (socket) {
 };
 
 const getUser = function (key, param) {
-  return users.find(user => user[key] === param);
+  return tokens.find(user => user[key] === param);
 };
 
 const generateGameInstance = function (users) {
@@ -58,8 +55,8 @@ const generateGameInstance = function (users) {
 };
 
 const redirectToGameField = function (obj, instance) {
-  const sender = getUser('username', obj.sender);
-  const receiver = getUser('username', obj.receiver);
+  const sender = getUser('email', obj.sender);
+  const receiver = getUser('email', obj.receiver);
   const users = [sender,receiver];
   const gameInstance = generateGameInstance(users);
   users.forEach(user => user.socket.emit('redirectToGameField', gameInstance.id));
@@ -70,53 +67,47 @@ const declineInvite = function (obj, instance) {
   console.log(instance);
 };
 
-const login = function (data, socket) {
-  let loggedIn = false;
-  tokens.forEach(token => {
-    if (token.email === data.username) loggedIn = true;
+const compareHash = function (socket, data, hash) {
+  bcrypt.compare(data.password, hash, (err, res) => {
+    if (!err && res) {
+      const uid = uniqid();
+      tokens.push({uid, socket, email: data.username});
+      socket.emit('loginAccepted', {uid,email: data.username});
+    }
+    else socket.emit('loginDeclined', "fuck you");
   });
-
-  if (!loggedIn) {
-    mysql.controlEmail(data.username, (hash) => {
-      if (hash !== false) {
-        bcrypt.compare(data.password, hash, (err, res) => {
-          if (!err && res) {
-            const uid = uniqid();
-            tokens.push({uid, socket, email: data.username});
-            socket.emit('loginAccepted', {uid,email: data.username});
-          }
-          else socket.emit('loginDeclined', "fuck you");
-        });
-      };
-    });
-  }
-  else {
-    socket.emit('loginDeclined', "already logged in");
-  }
-
 };
 
-const invite = function (uid, socket) {
+const login = function (data, socket) {
+  if (tokens.find(token => token.email === data.username) === undefined) {
+    mysql.controlEmail(data.username, (hashCorrect) => {
+      if (hashCorrect) compareHash(socket, data, hashCorrect);
+    });
+  }
+  else socket.emit('loginDeclined', "already logged in");
+};
+
+const invite = function (email, socket) {
   const sender = getUser('socket', socket);
-  const receiver = getUser('UID', uid);
+  const receiver = getUser('email', email);
 
   receiver.socket.emit('invite', {
-    sender: sender.username,
-    receiver: receiver.username,
-    msg: `${sender.username} sent you an invite`
+    sender: sender.email,
+    receiver: receiver.email,
+    msg: `${sender.email} sent you an invite`
+  });
+};
+
+const registerUser = function (socket, obj, err, hash) {
+  if (!err) mysql.register(obj.username, hash, obj.email, (bool) => {
+    if (bool) socket.emit('registrationAccepted', "status ok accepted");
+    else socket.emit('registrationDeclined', "registration declined");
   });
 };
 
 const handleRegistration = function (obj, socket) {
   mysql.controlEmail(obj.email, (bool) => {
-    if (!bool) {
-      bcrypt.hash(obj.password, saltRounds, (err, hash) => {
-        if (!err) mysql.register(obj.username, hash, obj.email, (bool) => {
-          if (bool) socket.emit('registrationAccepted', "status ok accepted");
-          else socket.emit('registrationDeclined', "registration declined");
-        });
-      });
-    }
+    if (!bool) bcrypt.hash(obj.password, saltRounds, (err, hash) => registerUser(socket, obj, err, hash));
     else socket.emit('registrationDeclined', "Duplicated email");
   });
 };
@@ -141,25 +132,27 @@ const disconnect = function (socket) {
   });
 };
 
-
 const controlOnDisconnect = function (socket) {
   const sockets = Object.keys(io.sockets.sockets);
   const date = new Date();
 
   tokens.forEach(token => {
     if (sockets.includes(token.socket.id)) token.timeStamp = date.getTime();
-    else {
-      if (token.timeStamp !== undefined && (token.timeStamp + 60000) < date.getTime()) {
-        logOut(token.uid);
-        updateUserList(socket);
-      }
+    else if (!sockets.includes(token.socket.id) && token.timeStamp !== undefined && (token.timeStamp + 60000) < date.getTime()) {
+      logOut(token.uid);
+      updateUserList(socket);
     }
   });
 };
 
+const updateGame = function (obj, socket) {
+  const instance = gameInstances.find(instance => instance.id === obj.gameId);
+  const sockets = instance.players.map(user => getUser('email', user.username)).filter(s => socket !== s.socket);
+  instance.status  = obj.name;
+  sockets.forEach(x => x.socket.emit('updateGame', instance));
+};
 
 io.sockets.on('connection', socket => {
-
   setInterval(() =>  {
     controlOnDisconnect(socket);
   }, 5000);
@@ -196,7 +189,11 @@ io.sockets.on('connection', socket => {
 
   socket.on('invite', email => {
     console.log(email);
-    //nvite(uid, socket);
+    invite(email, socket);
+  });
+
+  socket.on('updateGame', obj => {
+    updateGame(obj);
   });
 
 });

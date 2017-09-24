@@ -1,0 +1,32 @@
+
+main{
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: #eee;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+h1{
+  font-size: 4rem;
+  color: grey;
+  margin-top: -5%;
+  margin-bottom: 5%;
+
+}
+
+.gear {
+  background: url('../media/gear.png') no-repeat;
+  background-size: 100%;
+  height: 100px;
+  width: 100px;
+  margin-bottom: 10px;
+  animation:spin 10s linear infinite;
+}
