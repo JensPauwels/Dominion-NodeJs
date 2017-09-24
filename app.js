@@ -145,17 +145,18 @@ const handleRegistration = function (obj, socket) {
 
 const startGame = function (socket) {
   startingDeck();
+  checkPlayerScore();
+  gameInfo.users.forEach(user => drawCards("newCards", user, 5));
   fillUpBoard();
-  socket.emit('startGameInfo', usersTemp, cardsLeft);
+  socket.emit('startGameInfo', gameInfo);
 }
 
 const startingDeck = function () {
-  usersTemp.forEach(user => {
+  gameInfo.users.forEach(user => {
     user.deck = [];
-    user.deck.push(
-    findCards.findCard(cardList.passiveCards, 'Copper'),
-    findCards.findCard(cardList.passiveCards, 'Estate')
-    );
+    let copperCard = findCards.cloneCard(findCards.findCard(cardList.passiveCards, 'Copper'));
+    let estateCard = findCards.cloneCard(findCards.findCard(cardList.passiveCards, 'Estate'));
+    user.deck.push(copperCard, estateCard);
 
     let index = findCards.indexOfCardInDeck(user.deck, 'Copper');
     user.deck[index].amount = 7;
@@ -172,36 +173,67 @@ const findCards = {
   },
   indexOfCardInDeck: function (array, cardName) {
     return array.findIndex(card => card.name === cardName);
+  },
+  cloneCard: function (obj) {
+    if (null === obj || "object" != typeof obj) return obj;
+    let copy = obj.constructor();
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) copy[key] = obj[key];
+    }
+    return copy;
   }
 }
 
-const drawCards = function () {
-  //TODO fix hier het random genereren van card draw.
+const drawCards = function (action, user, amount) {
+  if (action === "newCards") user.hand = [];
+  for (let i = 0; i < amount; i++) {
+    const rn = getRandomArbitrary(0, user.deck.length - 1);
+    let card = findCards.findCard(user.hand, user.deck[rn].name);
+    if (card === undefined) {
+      let clone = findCards.cloneCard(findCards.findCard(user.deck, user.deck[rn].name));
+
+      user.hand.push(clone);
+      findCards.findCard(user.hand, user.deck[rn].name).amount = 1;
+      findCards.findCard(user.deck, user.deck[rn].name).amount--;
+    } else {
+      card.amount++;
+      findCards.findCard(user.deck, user.deck[rn].name).amount--;
+    }
+  }
 }
 
 const fillUpBoard = function () {
+  gameInfo.cardsLeft = [];
   cardList.passiveCards.forEach(card => {
-    cardsLeft.push(card);
+    gameInfo.cardsLeft.push(card);
+    // console.log(card);
   })
-  console.log(cardsLeft);
+}
+
+const checkPlayerScore = function () {
+  gameInfo.users.forEach(user => {
+    user.victoryPoints = 0;
+    user.deck.forEach(card => {
+      if (card.action === 'Points') user.victoryPoints += card.value * card.amount;
+    })
+  })
 }
 
 //Temporarily
-const usersTemp  = [{
+const gameInfo  = {users: [{
     username: "Frank",
     hand: [],
     deck: [],
-    victoryPoints: 3,
+    victoryPoints: 0,
   },
   {
     username: "Mathias",
     hand: [],
     deck: [],
-    victoryPoints: 3,
-  }
-]
-
-const cardsLeft = [];
+    victoryPoints: 0,
+  }],
+  cardsLeft : []
+}
 
 
 io.sockets.on('connection', socket => {
@@ -256,7 +288,14 @@ io.sockets.on('connection', socket => {
     switchUserTurn(socket);
   })
 
+  socket.on('cardAction', card => {
+    const actions = card.action.split(" ");
+    actions.forEach(action => { // En hier.
+      cardOptions.action();
+    })
+  })
 });
+
 
 const switchUserTurn = function (socket) {
   //TODO stuur gegevens van alle zetten die gedaan werden door naar alle sockets.
